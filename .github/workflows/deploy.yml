@@ -1,0 +1,73 @@
+# GitHub Actions Workflow to build and deploy msd_module.bundle.js to Google Cloud Storage.
+#
+# --- SETUP INSTRUCTIONS ---
+# 1. GOOGLE CLOUD SETUP:
+#    - Create a Service Account in your GCP project.
+#    - Grant the Service Account the 'Storage Object Admin' role for the target buckets.
+#    - Create and download a JSON key for this Service Account.
+#
+# 2. GITHUB SECRETS SETUP (Repository Level):
+#    - Go to: https://github.com/<owner>/<repo>/settings/secrets/actions
+#    - Add a new repository secret:
+#      - Name: GCP_SA_KEY
+#      - Value: (Paste the entire content of the Service Account JSON key file)
+#
+# 3. GITHUB ENVIRONMENTS SETUP:
+#    - Go to: https://github.com/<owner>/<repo>/settings/environments
+#    - Create two environments: "production" and "development".
+#    - For each environment, add a secret:
+#      - Name: GCP_BUCKET
+#      - Value: The bucket name and path (e.g., 'myshopdash/p' for production, 'msd-dev/p' for development)
+#        Note: Do not include the 'gs://' prefix.
+#
+# 4. PIPELINE TRIGGER:
+#    - Pushing to the 'main' branch deploys to the 'production' environment.
+#    - Pushing to the 'dev' branch deploys to the 'development' environment.
+
+name: Deploy to GCS
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    # Select environment based on the branch name
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: esm/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: esm
+
+      - name: Build
+        run: npm run build
+        working-directory: esm
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Upload to GCS'
+        run: |
+          gcloud storage cp esm/msd_module.bundle.js gs://${{ secrets.GCP_BUCKET }}/msd_module.bundle.js --predefined-acl=publicRead
