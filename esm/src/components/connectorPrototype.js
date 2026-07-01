@@ -101,7 +101,7 @@ export default function connectorPrototype(obj) {
             this.state.pc = 0;
             this.state.message = "Checking authorization";
 
-            cc = this.config
+            const cc = this.config
 
             if (!(await this.page_is_authorised())) {
                 this.console.error("Attempt to call pull when page is not authorised")
