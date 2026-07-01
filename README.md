@@ -142,7 +142,7 @@ The easiest way to integrate Sentry is by using `load_custom_logger`:
 ```javascript
 import * as Sentry from "@sentry/browser";
 
-const msd = (await import('https://storage.googleapis.com/msd-dev/p/msd_module.bundle.js')).default;
+const msd = (await import('https://storage.googleapis.com/myshopdash/p/msd_module.bundle.js')).default;
 
 msd.load_custom_logger({
     error: (message, error, ...args) => {

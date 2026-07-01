@@ -37,9 +37,8 @@ jobs:
     name: Build and Deploy
     runs-on: ubuntu-latest
     # Select environment based on the branch name
-    permissions:
-      # Grant write permission to the GITHUB_TOKEN for this job
-      contents: write
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
 
     steps:
       - name: Checkout
@@ -60,16 +59,15 @@ jobs:
         run: npm run build
         working-directory: esm
 
-      - name: Commit and Push Build Output
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Upload to GCS'
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          # Check if there are changes to commit
-          if [ -n "$(git status --porcelain dist/msd_module.bundle.js)" ]; then
-            git add dist/msd_module.bundle.js
-            git commit -m "ci: build and commit msd_module.bundle.js"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          gcloud storage cp esm/msd_module.bundle.js gs://${{ secrets.GCP_BUCKET }}/msd_module.bundle.js --predefined-acl=publicRead
