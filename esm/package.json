@@ -9,7 +9,7 @@
     "require": "./msd_module.bundle.js"
   },
   "scripts": {
-    "build": "esbuild ./src/msd_module.js --bundle --format=esm --outfile=msd_module.bundle.js",
+    "build": "esbuild ./src/msd_module.js --bundle --format=esm --outfile=msd_module.bundle.js"
   },
   "devDependencies": {
     "esbuild": "^0.25.12"
