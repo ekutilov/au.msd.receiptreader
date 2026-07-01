@@ -37,8 +37,6 @@ jobs:
     name: Build and Deploy
     runs-on: ubuntu-latest
     # Select environment based on the branch name
-    environment:
-      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
 
     steps:
       - name: Checkout
@@ -59,15 +57,9 @@ jobs:
         run: npm run build
         working-directory: esm
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      - name: Upload Build Output
+        uses: actions/upload-artifact@v4
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
-
-      - name: 'Upload to GCS'
-        run: |
-          gcloud storage cp esm/msd_module.bundle.js gs://${{ secrets.GCP_BUCKET }}/msd_module.bundle.js --predefined-acl=publicRead
+          name: msd_module.bundle.js
+          path: dist/
+          retention-days: 500
