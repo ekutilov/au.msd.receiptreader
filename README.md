@@ -13,7 +13,7 @@ This module is designed to be injected into the **MAIN** world of a retailer's w
 Since the module is an ESM, you can import it dynamically from a CDN or a local path:
 
 ```javascript
-const msd = (await import('https://storage.googleapis.com/msd-dev/p/msd_module.bundle.js')).default;
+const msd = (await import('https://storage.googleapis.com/myshopdash/p/msd_module.bundle.js')).default;
 ```
 
 ### 2. Access the Connector
