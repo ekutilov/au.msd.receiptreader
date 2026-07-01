@@ -1,6 +1,6 @@
 // src/components/connectorPrototype.js
 function connectorPrototype(obj) {
-  const defaultRequestTimeout = 10 * 1e3;
+  const defaultRequestTimeout = 9 * 1e3;
   return {
     parent: obj,
     defaultConnectorConfig: {},
