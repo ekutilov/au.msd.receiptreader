@@ -70,4 +70,4 @@ jobs:
 
       - name: 'Upload to GCS'
         run: |
-          gcloud storage cp esm/msd_module.bundle.js gs://${{ secrets.GCP_BUCKET }}/msd_module.bundle.js --predefined-acl=publicRead
+          gcloud storage cp dist/msd_module.bundle.js gs://${{ secrets.GCP_BUCKET }}/msd_module.bundle.js --predefined-acl=publicRead
