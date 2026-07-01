@@ -10,7 +10,6 @@
   },
   "scripts": {
     "build": "esbuild ./src/msd_module.js --bundle --format=esm --outfile=msd_module.bundle.js",
-    "deploy": "gcloud storage cp msd_module.bundle.js gs://msd-dev/p/msd_module.bundle.js --predefined-acl=publicRead"
   },
   "devDependencies": {
     "esbuild": "^0.25.12"
