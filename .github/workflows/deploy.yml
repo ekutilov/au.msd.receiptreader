@@ -57,9 +57,16 @@ jobs:
         run: npm run build
         working-directory: esm
 
-      - name: Upload Build Output
-        uses: actions/upload-artifact@v4
-        with:
-          name: msd_module.bundle.js
-          path: dist/
-          retention-days: 500
+      - name: Commit and Push Build Output
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Check if there are changes to commit
+          if [ -n "$(git status --porcelain dist/msd_module.bundle.js)" ]; then
+            git add dist/msd_module.bundle.js
+            git commit -m "ci: build and commit msd_module.bundle.js"
+            git push
+          else
+            echo "No changes to commit."
+          fi
