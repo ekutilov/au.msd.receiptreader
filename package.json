@@ -1,0 +1,17 @@
+{
+  "name": "au.msd.receiptreader.esm",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/msd_module.bundle.js",
+  "module": "./dist/msd_module.bundle.js",
+  "exports": {
+    "import": "./dist/msd_module.bundle.js",
+    "require": "./dist/msd_module.bundle.js"
+  },
+  "scripts": {
+    "build": "esbuild ./esm/src/msd_module.js --bundle --format=esm --outfile=./dist/msd_module.bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  }
+}

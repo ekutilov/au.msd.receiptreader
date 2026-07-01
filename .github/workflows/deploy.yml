@@ -49,15 +49,15 @@ jobs:
         with:
           node-version: '24.18.0'
           cache: 'npm'
-          cache-dependency-path: esm/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm install
-        working-directory: esm
+        working-directory: .
 
       - name: Build
         run: npm run build
-        working-directory: esm
+        working-directory: .
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
