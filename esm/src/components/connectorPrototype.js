@@ -1,7 +1,7 @@
 
 export default function connectorPrototype(obj) {
     
-    const defaultRequestTimeout = 10*1000;
+    const defaultRequestTimeout = 9*1000;
 
     return {
         parent: obj,
