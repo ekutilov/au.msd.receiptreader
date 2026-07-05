@@ -1,4 +1,4 @@
-// src/components/connectorPrototype.js
+// esm/src/components/connectorPrototype.js
 function connectorPrototype(obj) {
   const defaultRequestTimeout = 9 * 1e3;
   return {
@@ -81,7 +81,7 @@ function connectorPrototype(obj) {
       this.state.download_status = "in_progress";
       this.state.pc = 0;
       this.state.message = "Checking authorization";
-      cc = this.config;
+      const cc = this.config;
       if (!await this.page_is_authorised()) {
         this.console.error("Attempt to call pull when page is not authorised");
         this.state.download_status = "download_failed";
@@ -287,7 +287,7 @@ function connectorPrototype(obj) {
   };
 }
 
-// src/connectors/everyday/config.js
+// esm/src/connectors/everyday/config.js
 var config_default = {
   enabled: true,
   name: "Woolworths",
@@ -312,7 +312,7 @@ var config_default = {
   }
 };
 
-// src/connectors/everyday/connector.js
+// esm/src/connectors/everyday/connector.js
 function connector_default(obj) {
   return {
     ...config_default,
@@ -510,7 +510,7 @@ function connector_default(obj) {
   };
 }
 
-// src/connectors/coles/config.js
+// esm/src/connectors/coles/config.js
 var config_default2 = {
   enabled: true,
   name: "Coles",
@@ -611,7 +611,7 @@ var config_default2 = {
   }
 };
 
-// src/connectors/coles/connector.js
+// esm/src/connectors/coles/connector.js
 function connector_default2(obj) {
   return {
     ...config_default2,
@@ -928,7 +928,7 @@ function connector_default2(obj) {
   };
 }
 
-// src/connectors/kmart/config.js
+// esm/src/connectors/kmart/config.js
 var config_default3 = {
   name: "Kmart",
   enabled: true,
@@ -956,7 +956,7 @@ var config_default3 = {
   }
 };
 
-// src/connectors/kmart/connector.js
+// esm/src/connectors/kmart/connector.js
 function connector_default3() {
   return {
     ...config_default3,
@@ -1161,10 +1161,10 @@ function connector_default3() {
   };
 }
 
-// src/connectors/connectors.js
+// esm/src/connectors/connectors.js
 var connectors_default = [connector_default, connector_default2, connector_default3];
 
-// src/components/urlpattern.js
+// esm/src/components/urlpattern.js
 var R = class {
   type = 3;
   name = "";
@@ -1895,7 +1895,7 @@ var me = class {
   }
 };
 
-// src/msd_module.js
+// esm/src/msd_module.js
 if (!globalThis.URLPattern) globalThis.URLPattern = me;
 function return_connector(url) {
   let connector = connectors_default.filter(

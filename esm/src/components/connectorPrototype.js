@@ -258,7 +258,7 @@ export default function connectorPrototype(obj) {
             }
             window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData }));
 
-            return { status: { ...this.state }, content: transactions }
+            return { status: { ...this.state }, content: processed_data }
             
         }
         ,
@@ -327,7 +327,6 @@ export default function connectorPrototype(obj) {
                 brand: this.id, 
                 metabrand: this.id,
                 captureTime: (new Date()).toISOString(), 
-                ver: this.ver,
                 connector_ver: this.ver,
                 download: data,
                 normalised_data: undefined,

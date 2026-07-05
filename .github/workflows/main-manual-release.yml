@@ -1,0 +1,89 @@
+name: Main Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  manual-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+
+      - name: Update Version
+        id: versioning
+        run: |
+          TYPE="${{ github.event.inputs.release_type }}"
+          VERSION=$(node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+            const version = pkg.version.split('-')[0]; // Remove any alpha suffix if we are on main
+            const parts = version.split('.').map(Number);
+            if ('$TYPE' === 'major') parts[0]++, parts[1] = 0, parts[2] = 0;
+            else if ('$TYPE' === 'minor') parts[1]++, parts[2] = 0;
+            else if ('$TYPE' === 'patch') parts[2]++;
+            const nextVersion = parts.join('.');
+            pkg.version = nextVersion;
+            fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+            console.log(nextVersion);
+          ")
+          echo "NEW_VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json dist/msd_module.bundle.js
+          git commit -m "chore: release ${{ steps.versioning.outputs.NEW_VERSION }} [skip ci]"
+          git tag v${{ steps.versioning.outputs.NEW_VERSION }}
+          git push origin main --tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.versioning.outputs.NEW_VERSION }}
+          files: dist/msd_module.bundle.js
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Upload to GCS'
+        run: |
+          gcloud storage cp dist/msd_module.bundle.js gs://${{ secrets.GCP_BUCKET }}/msd_module.bundle.js --predefined-acl=publicRead
