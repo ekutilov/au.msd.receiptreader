@@ -4,7 +4,7 @@ export default function connectorPrototype(obj) {
     const defaultRequestTimeout = 9*1000;
 
     return {
-        api_ver: "v1.0.4",   
+        api_ver: "v1.0.5",   
         parent: obj,
         defaultConnectorConfig: {},
         cache: new Map(),
