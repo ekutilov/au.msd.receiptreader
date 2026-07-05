@@ -73,12 +73,12 @@ export default function connectorPrototype(obj) {
                 let config_online = await fetch(config_url)
                 if (config_online.ok) {
                     let config_content = await config_online.json()
-                    this.config = {...config_content, ...JSON.parse(config_content[this.id]?.config)||{}}
+                    this.config = {...this.config, ...config_content, ...JSON.parse(config_content[this.id]?.config)||{}}
                 }
             }
 
             if (options.config) {
-                this.config = options.config
+                this.config = {...this.config, ...options.config}
             }
 
             this.console.debug("Connector initialized with config: ", this.config)
