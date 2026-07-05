@@ -48,6 +48,11 @@ jobs:
           ")
           echo "NEW_VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Update api_ver in connectorPrototype
+        run: |
+          # The file path is relative to the checkout directory in the runner
+          sed -i "s/api_ver: \".*\"/api_ver: \"v${{ steps.versioning.outputs.NEW_VERSION }}\"/" esm/src/components/connectorPrototype.js
+
       - name: Install dependencies
         run: npm install
 

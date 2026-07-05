@@ -4,6 +4,7 @@ export default function connectorPrototype(obj) {
     const defaultRequestTimeout = 9*1000;
 
     return {
+        api_ver: "v1.0.3",   
         parent: obj,
         defaultConnectorConfig: {},
         cache: new Map(),
@@ -328,6 +329,7 @@ export default function connectorPrototype(obj) {
                 metabrand: this.id,
                 captureTime: (new Date()).toISOString(), 
                 connector_ver: this.ver,
+                api_ver: this.api_ver,
                 download: data,
                 normalised_data: undefined,
             }

@@ -51,6 +51,11 @@ jobs:
           ")
           echo "NEW_VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Update api_ver in connectorPrototype
+        run: |
+          # The file path is relative to the checkout directory in the runner
+          sed -i "s/api_ver: \".*\"/api_ver: \"v${{ steps.versioning.outputs.NEW_VERSION }}\"/" esm/src/components/connectorPrototype.js
+
       - name: Install dependencies
         run: npm install
 
@@ -62,6 +67,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json dist/msd_module.bundle.js
+          git add package.json dist/msd_module.bundle.js esm/src/components/connectorPrototype.js
           git commit -m "chore: release ${{ steps.versioning.outputs.NEW_VERSION }} [skip ci]"
           git tag v${{ steps.versioning.outputs.NEW_VERSION }}
           git push origin main --tags
