@@ -109,7 +109,7 @@ export default function connectorPrototype(obj) {
                 this.state.download_status = "download_failed";
                 this.state.error = "Page is not authorised";
                 this.state.message = "Authorization failed";
-                return {status: { ...this.state }, content: [] }
+                return {status: { ...this.state }, content: {} }
             }
 
             this.state.auth_state = "authenticated";
@@ -135,7 +135,7 @@ export default function connectorPrototype(obj) {
                 this.state.download_status = "download_failed";
                 this.state.error = "No transactions found or download error: try to refresh the page";
                 this.state.message = "No transactions found";
-                return { status: { ...this.state }, content: [] }
+                return { status: { ...this.state }, content: {} }
             }
 
             // shuffle transactions
@@ -200,7 +200,7 @@ export default function connectorPrototype(obj) {
                         }
                         window.dispatchEvent(new CustomEvent('msd-stream-cancel', { detail: streamCancelData }));
 
-                        return { status: { ...this.state }, content: transactions }
+                        return { status: { ...this.state }, content: this.download_postprocessor(transactions) }
                     }
 
                 } catch (e) {
@@ -226,7 +226,7 @@ export default function connectorPrototype(obj) {
                         }
                         window.dispatchEvent(new CustomEvent('msd-stream-cancel', { detail: streamCancelData }));
 
-                        return { status: { ...this.state }, content: transactions }
+                        return { status: { ...this.state }, content: this.download_postprocessor(transactions) }
                     }
                 }
             } 
