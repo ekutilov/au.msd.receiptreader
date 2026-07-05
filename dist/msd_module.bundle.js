@@ -195,7 +195,7 @@ function connectorPrototype(obj) {
         }
       }
       window.dispatchEvent(new CustomEvent("msd-stream-end", { detail: streamEndData }));
-      return { status: { ...this.state }, content: transactions };
+      return { status: { ...this.state }, content: processed_data };
     },
     async page_is_authorised() {
       return false;
@@ -235,7 +235,6 @@ function connectorPrototype(obj) {
         brand: this.id,
         metabrand: this.id,
         captureTime: (/* @__PURE__ */ new Date()).toISOString(),
-        ver: this.ver,
         connector_ver: this.ver,
         download: data,
         normalised_data: void 0
