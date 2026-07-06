@@ -1,6 +1,6 @@
 {
     "updated_ts": 1783332663,
-    "config_ver": "1.0.0",
+    "config_ver": "1.0.1",
     "connectors": {
         "coles": {
             "enabled": true,
@@ -66,7 +66,7 @@
                     "Content-Type": "application/json",
                     "ocp-apim-subscription-key": "eae83861d1cd4de6bb9cd8a2cd6f041e"
                 },
-                "order_instore_node": ["pageProps" , "initialState", "bffApi", "queries", "getOrderV2({\"orderId\":\"___ORDERID___\",\"transactionId\":\"___TRANSACTIONID___\"})", 'data'],
+                "order_instore_node": ["pageProps" , "initialState", "bffApi", "queries", "getOrderV2({\"orderId\":\"___ORDERID___\",\"transactionId\":\"___TRANSACTIONID___\"})", "data"],
                 "order_online_url": ["https://www.coles.com.au/api/bff/orders/___ORDERID___", "https://www.coles.com.au/api/bff/orders/___ORDERID___/items"],
                 "order_online_headers": {
                     "Content-Type": "application/json",

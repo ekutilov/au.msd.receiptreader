@@ -20,7 +20,5 @@ export default {
         instore_receipt_request_url: "https://api.slyp.com.au/v1/loyalty/web-receipts/___ERA_HASH___",
         weburl_transformer_regex: "^https://receipts\\.slyp\\.com\\.au/(.*?)(?:/view)?$",
         instore_receipt_node: "",
-        proxy: "https://australia-southeast1-rewards-viewer-dev.cloudfunctions.net/corshandler",
-        proxy_secret: "",
     },
 }

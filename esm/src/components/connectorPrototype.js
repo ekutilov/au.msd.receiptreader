@@ -4,7 +4,7 @@ export default function connectorPrototype(obj) {
     const defaultRequestTimeout = 9*1000;
 
     return {
-        api_ver: "v1.0.5",   
+        api_ver: "v1.0.4",   
         parent: obj,
         defaultConnectorConfig: {},
         cache: new Map(),
@@ -73,7 +73,7 @@ export default function connectorPrototype(obj) {
                 let config_online = await fetch(config_url)
                 if (config_online.ok) {
                     let config_content = await config_online.json()
-                    this.config = {...this.config, ...config_content, ...JSON.parse(config_content[this.id]?.config)||{}}
+                    this.config = {...this.config, ...config_content, ...config_content.connectors[this.id]?.config||{}}
                 }
             }
 
