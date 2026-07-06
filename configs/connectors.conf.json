@@ -1,6 +1,6 @@
 {
     "updated_ts": 1783332663,
-    "config_ver": "1.0.0",
+    "config_ver": "1.0.1",
     "connectors": {
         "coles": {
             "enabled": true,

@@ -30,20 +30,6 @@ export default {
         },
         auth_launch_link: 'https://auth.colesgroupprofile.com.au/authorize?audience=customer-services&state=vQmnMlNvGNjyGsqgHk2cIdyTnvyCT01ZlcG73CAdk0M&response_type=code&scope=openid%20read:profile%20offline_access%20update:loyalty-account%20read:loyalty-account%20read:product-list%20update:product-list%20update:preferences%20read:preferences%20update:col%20read:col%20sso:col%20read:address%20update:address%20delete:address&nonce=0Z6YPmab5QYIpoCbGm-X2sLteFy0YlTKrZeFK7-WjE4&code_challenge=0puyUlLlLhu5i_LnunM1yavl-ZQeaiPBjWmX9y075Qc&code_challenge_method=S256&redirect_uri=colesapp://colescallback?code%3D&client_id=xQn4GV9tOBsc4OaAltn6P5l0IDFVlG5H&cid=capp:mobileapps:authentication',
         auth_token_link: 'https://auth.colesgroupprofile.com.au/oauth/token',
-        auth_token_formbody: {
-            'code_verifier': '4RVfTXD1GZRTT3xJYESG-08AEVNqs-77EVE3dPfyVjc',
-            'redirect_uri': 'colesapp://colescallback?code=',
-            'client_id': 'xQn4GV9tOBsc4OaAltn6P5l0IDFVlG5H',
-            'grant_type': 'authorization_code'
-        },
-        refresh_token_formbody: {
-            'client_id': 'xQn4GV9tOBsc4OaAltn6P5l0IDFVlG5H',
-            'scope': 'openid read:profile offline_access update:loyalty-account read:loyalty-account read:product-list update:product-list update:preferences read:preferences update:col read:col sso:col read:address update:address delete:address',
-            'grant_type': 'refresh_token',
-            'redirect_uri': 'colesapp://colescallback?code=',
-            'audience': 'customer-services',
-            'cid': 'capp:mobileapps:authentication'
-        },
         ver: '3.2',
         auth_check_url : 'https://www.coles.com.au/api/bff/auth', // TODO: parametrise!
         auth_check_headers : {  // TODO: parametrise!
