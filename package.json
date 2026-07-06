@@ -1,6 +1,6 @@
 {
   "name": "au.msd.receiptreader.esm",
-  "version": "1.0.4-alpha.1",
+  "version": "1.0.4-alpha.2",
   "type": "module",
   "main": "./dist/msd_module.bundle.js",
   "module": "./dist/msd_module.bundle.js",
