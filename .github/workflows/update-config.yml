@@ -1,0 +1,37 @@
+name: Update Remote Config
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'configs/connectors.conf.json'
+
+jobs:
+  upload-config:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Upload to GCS (dev)'
+        if: github.ref == 'refs/heads/dev'
+        run: gcloud storage cp configs/connectors.conf.json gs://msd-dev/p/connectors.conf.json --predefined-acl=publicRead
+
+      - name: 'Upload to GCS (main)'
+        if: github.ref == 'refs/heads/main'
+        run: gcloud storage cp configs/connectors.conf.json gs://myshopdash/p/connectors.conf.json --predefined-acl=publicRead

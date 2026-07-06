@@ -1,0 +1,1 @@
+Availalbe at https://storage.googleapis.com/myshopdash/p/connectors.conf.json
