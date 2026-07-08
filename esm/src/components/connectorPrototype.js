@@ -247,6 +247,7 @@ export default function connectorPrototype(obj) {
             this.state.download_status = "completed";
             this.state.message = "Download completed successfully";
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
+            this.state.downloaded_data = processed_data;
         
             // Trigger stream end
             const streamEndData = { expected_chunks: length, total_success: length_success };
