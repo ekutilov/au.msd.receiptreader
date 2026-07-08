@@ -261,37 +261,37 @@ export default function connectorPrototype(obj) {
             window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData }));
 
             // Trigger stream initiator
-            const streamStartData = { expected_chunks: 1, transactions_index: ['final'] };
+            const streamStartData_fin = { expected_chunks: 1, transactions_index: ['final'] };
             if (typeof this.onStreamStart === 'function') {
                 try {
-                    await this.onStreamStart(streamStartData);
+                    await this.onStreamStart(streamStartData_fin);
                 } catch (e) {
                     this.console.error("Error in onStreamStart callback: ", e);
                 }
             }
             // Dispatch as DOM event for agnostic listeners
-            window.dispatchEvent(new CustomEvent('msd-stream-start', { detail: streamStartData }));
+            window.dispatchEvent(new CustomEvent('msd-stream-start', { detail: streamStartData_fin }));
             
-            const streamChunkData = { index: 0, expected_chunks: 1, chunk: processed_data };
+            const streamChunkData_fin = { index: 0, expected_chunks: 1, chunk: processed_data };
             if (typeof this.onStreamChunk === 'function') {
                 try {
-                    await this.onStreamChunk(streamChunkData);
+                    await this.onStreamChunk(streamChunkData_fin);
                 } catch (e) {
                     this.console.error("Error in onStreamChunk callback: ", e);
                 }
             }
-            window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData }));
+            window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData_fin }));
 
             // Trigger stream end
-            const streamEndData = { expected_chunks: 1, total_success: 1 };
+            const streamEndData_fin = { expected_chunks: 1, total_success: 1 };
             if (typeof this.onStreamEnd === 'function') {
                 try {
-                    await this.onStreamEnd(streamEndData);
+                    await this.onStreamEnd(streamEndData_fin);
                 } catch (e) {
                     this.console.error("Error in onStreamEnd callback: ", e);
                 }
             }
-            window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData }));
+            window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData_fin }));
 
             return { status: { ...this.state }, content: processed_data }
             
