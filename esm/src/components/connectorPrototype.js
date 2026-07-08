@@ -78,10 +78,9 @@ export default function connectorPrototype(obj) {
             }
 
             if (options.config) {
-                this.config = {...this.config, ...options.config, ...config_content.connectors[this.id]?.config||{}}
+                this.config = {...this.config, ...options.config, ...options.config.connectors[this.id]?.config||{}}
             }
 
-            this.console.debug("Connector initialized with config: ", this.config)
         },
         getState() {
 
