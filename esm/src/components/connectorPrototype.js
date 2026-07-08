@@ -248,7 +248,17 @@ export default function connectorPrototype(obj) {
             this.state.message = "Download completed successfully";
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
             this.state.downloaded_data = processed_data;
-        
+
+            
+            const streamChunkData = { index: i+1, expected_chunks: length+1, chunk: processed_data };
+            if (typeof this.onStreamChunk === 'function') {
+                try {
+                    await this.onStreamChunk(streamChunkData);
+                } catch (e) {
+                    this.console.error("Error in onStreamChunk callback: ", e);
+                }
+            }
+
             // Trigger stream end
             const streamEndData = { expected_chunks: length, total_success: length_success };
             if (typeof this.onStreamEnd === 'function') {
