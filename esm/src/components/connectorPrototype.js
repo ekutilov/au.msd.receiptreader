@@ -258,6 +258,7 @@ export default function connectorPrototype(obj) {
                     this.console.error("Error in onStreamChunk callback: ", e);
                 }
             }
+            window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData }));
 
             // Trigger stream end
             const streamEndData = { expected_chunks: length, total_success: length_success };
