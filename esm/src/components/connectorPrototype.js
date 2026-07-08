@@ -249,8 +249,30 @@ export default function connectorPrototype(obj) {
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
             this.state.downloaded_data = processed_data;
 
+            // Trigger stream end
+            const streamEndData = { expected_chunks: length, total_success: length_success };
+            if (typeof this.onStreamEnd === 'function') {
+                try {
+                    await this.onStreamEnd(streamEndData);
+                } catch (e) {
+                    this.console.error("Error in onStreamEnd callback: ", e);
+                }
+            }
+            window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData }));
+
+            // Trigger stream initiator
+            const streamStartData = { expected_chunks: 1, transactions_index: ['final'] };
+            if (typeof this.onStreamStart === 'function') {
+                try {
+                    await this.onStreamStart(streamStartData);
+                } catch (e) {
+                    this.console.error("Error in onStreamStart callback: ", e);
+                }
+            }
+            // Dispatch as DOM event for agnostic listeners
+            window.dispatchEvent(new CustomEvent('msd-stream-start', { detail: streamStartData }));
             
-            const streamChunkData = { index: i+1, expected_chunks: length+1, chunk: processed_data };
+            const streamChunkData = { index: 0, expected_chunks: 1, chunk: processed_data };
             if (typeof this.onStreamChunk === 'function') {
                 try {
                     await this.onStreamChunk(streamChunkData);
@@ -261,7 +283,7 @@ export default function connectorPrototype(obj) {
             window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData }));
 
             // Trigger stream end
-            const streamEndData = { expected_chunks: length, total_success: length_success };
+            const streamEndData = { expected_chunks: 1, total_success: 1 };
             if (typeof this.onStreamEnd === 'function') {
                 try {
                     await this.onStreamEnd(streamEndData);
