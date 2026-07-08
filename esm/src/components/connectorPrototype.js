@@ -145,7 +145,7 @@ export default function connectorPrototype(obj) {
             this.state.message = `Found ${length} transactions. Starting download...`;
 
             // Trigger stream initiator
-            const streamStartData = { expected_chunks: length, transactions_index: transactions };
+            const streamStartData = { expected_chunks: length+1, transactions_index: [...transactions, {id: "metadata", type: "metadata"}] };
             if (typeof this.onStreamStart === 'function') {
                 try {
                     await this.onStreamStart(streamStartData);
@@ -173,7 +173,7 @@ export default function connectorPrototype(obj) {
                     transactions[i].ereceipt = ereceipt
                     
                     // Trigger stream chunk
-                    const streamChunkData = { index: i, expected_chunks: length, chunk: transactions[i] };
+                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: transactions[i] };
                     if (typeof this.onStreamChunk === 'function') {
                         try {
                             await this.onStreamChunk(streamChunkData);
@@ -248,31 +248,8 @@ export default function connectorPrototype(obj) {
             this.state.message = "Download completed successfully";
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
             this.state.downloaded_data = processed_data;
-
-            // Trigger stream end
-            const streamEndData = { expected_chunks: length, total_success: length_success };
-            if (typeof this.onStreamEnd === 'function') {
-                try {
-                    await this.onStreamEnd(streamEndData);
-                } catch (e) {
-                    this.console.error("Error in onStreamEnd callback: ", e);
-                }
-            }
-            window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData }));
-
-            // Trigger stream initiator
-            const streamStartData_fin = { expected_chunks: 1, transactions_index: ['final'] };
-            if (typeof this.onStreamStart === 'function') {
-                try {
-                    await this.onStreamStart(streamStartData_fin);
-                } catch (e) {
-                    this.console.error("Error in onStreamStart callback: ", e);
-                }
-            }
-            // Dispatch as DOM event for agnostic listeners
-            window.dispatchEvent(new CustomEvent('msd-stream-start', { detail: streamStartData_fin }));
             
-            const streamChunkData_fin = { index: 0, expected_chunks: 1, chunk: processed_data };
+            const streamChunkData_fin = { index: 0, expected_chunks: length+1, chunk: processed_data };
             if (typeof this.onStreamChunk === 'function') {
                 try {
                     await this.onStreamChunk(streamChunkData_fin);
@@ -283,15 +260,15 @@ export default function connectorPrototype(obj) {
             window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData_fin }));
 
             // Trigger stream end
-            const streamEndData_fin = { expected_chunks: 1, total_success: 1 };
+            const streamEndData = { expected_chunks: length+1, total_success: length_success+1 };
             if (typeof this.onStreamEnd === 'function') {
                 try {
-                    await this.onStreamEnd(streamEndData_fin);
+                    await this.onStreamEnd(streamEndData);
                 } catch (e) {
                     this.console.error("Error in onStreamEnd callback: ", e);
                 }
             }
-            window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData_fin }));
+            window.dispatchEvent(new CustomEvent('msd-stream-end', { detail: streamEndData }));
 
             return { status: { ...this.state }, content: processed_data }
             
