@@ -172,7 +172,7 @@ export default function connectorPrototype(obj) {
                     transactions[i].ereceipt = ereceipt
                     
                     // Trigger stream chunk
-                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: transactions[i] };
+                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: [transactions[i]] };
                     if (typeof this.onStreamChunk === 'function') {
                         try {
                             await this.onStreamChunk(streamChunkData);
@@ -181,7 +181,7 @@ export default function connectorPrototype(obj) {
                         }
                     }
                     // Dispatch as DOM event for agnostic listeners
-                    window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData }));
+                    window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: { download: streamChunkData } }));
         
                     if (obj.store.cancelRun) {
                         this.state.download_status = "download_cancelled";
@@ -237,9 +237,9 @@ export default function connectorPrototype(obj) {
             const length_success = transactions.filter(el=>el.ereceipt)?.length || 0
 
             const customer_id = await this.get_customer_id()
-            if (transactions.length > 0) {
-                transactions[0].scraper = { clientId: customer_id, ver: (this.config).ver, captureTime:(new Date()).toISOString() }
-            }
+            // if (transactions.length > 0) {
+            //     transactions[0].scraper = { clientId: customer_id, ver: (this.config).ver, captureTime:(new Date()).toISOString() }
+            // }
 
             const processed_data = this.download_postprocessor(transactions);
 
@@ -247,8 +247,11 @@ export default function connectorPrototype(obj) {
             this.state.message = "Download completed successfully";
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
             this.state.downloaded_data = processed_data;
+
+            // Extract 'download' out, and collect everything else into 'newUser'
+            const { download, ...metadata } = processed_data;
             
-            const streamChunkData_fin = { index: 0, expected_chunks: length+1, chunk: processed_data };
+            const streamChunkData_fin = { index: 0, expected_chunks: length+1, chunk: metadata };
             if (typeof this.onStreamChunk === 'function') {
                 try {
                     await this.onStreamChunk(streamChunkData_fin);
