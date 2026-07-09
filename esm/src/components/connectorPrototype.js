@@ -172,7 +172,7 @@ export default function connectorPrototype(obj) {
                     transactions[i].ereceipt = ereceipt
                     
                     // Trigger stream chunk
-                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: transactions[i] };
+                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: [transactions[i]] };
                     if (typeof this.onStreamChunk === 'function') {
                         try {
                             await this.onStreamChunk(streamChunkData);
@@ -237,9 +237,9 @@ export default function connectorPrototype(obj) {
             const length_success = transactions.filter(el=>el.ereceipt)?.length || 0
 
             const customer_id = await this.get_customer_id()
-            if (transactions.length > 0) {
-                transactions[0].scraper = { clientId: customer_id, ver: (this.config).ver, captureTime:(new Date()).toISOString() }
-            }
+            // if (transactions.length > 0) {
+            //     transactions[0].scraper = { clientId: customer_id, ver: (this.config).ver, captureTime:(new Date()).toISOString() }
+            // }
 
             const processed_data = this.download_postprocessor(transactions);
 
