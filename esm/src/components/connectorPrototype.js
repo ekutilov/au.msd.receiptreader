@@ -181,7 +181,7 @@ export default function connectorPrototype(obj) {
                         }
                     }
                     // Dispatch as DOM event for agnostic listeners
-                    window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData }));
+                    window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: { download: streamChunkData } }));
         
                     if (obj.store.cancelRun) {
                         this.state.download_status = "download_cancelled";
@@ -247,8 +247,11 @@ export default function connectorPrototype(obj) {
             this.state.message = "Download completed successfully";
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
             this.state.downloaded_data = processed_data;
+
+            // Extract 'download' out, and collect everything else into 'newUser'
+            const { download, ...metadata } = processed_data;
             
-            const streamChunkData_fin = { index: 0, expected_chunks: length+1, chunk: processed_data };
+            const streamChunkData_fin = { index: 0, expected_chunks: length+1, chunk: metadata };
             if (typeof this.onStreamChunk === 'function') {
                 try {
                     await this.onStreamChunk(streamChunkData_fin);
