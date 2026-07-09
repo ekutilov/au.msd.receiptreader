@@ -172,7 +172,7 @@ export default function connectorPrototype(obj) {
                     transactions[i].ereceipt = ereceipt
                     
                     // Trigger stream chunk
-                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: [transactions[i]] };
+                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: { download: [transactions[i]] } };
                     if (typeof this.onStreamChunk === 'function') {
                         try {
                             await this.onStreamChunk(streamChunkData);
@@ -181,7 +181,7 @@ export default function connectorPrototype(obj) {
                         }
                     }
                     // Dispatch as DOM event for agnostic listeners
-                    window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: { download: streamChunkData } }));
+                    window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData }));
         
                     if (obj.store.cancelRun) {
                         this.state.download_status = "download_cancelled";
