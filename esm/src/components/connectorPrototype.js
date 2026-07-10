@@ -4,7 +4,7 @@ export default function connectorPrototype(obj) {
     const defaultRequestTimeout = 9*1000;
 
     return {
-        api_ver: "v1.0.4",   
+        api_ver: "v1.0.15",   
         parent: obj,
         defaultConnectorConfig: {},
         cache: new Map(),
@@ -78,10 +78,9 @@ export default function connectorPrototype(obj) {
             }
 
             if (options.config) {
-                this.config = {...this.config, ...options.config}
+                this.config = {...this.config, ...options.config, ...options.config.connectors[this.id]?.config||{}}
             }
 
-            this.console.debug("Connector initialized with config: ", this.config)
         },
         getState() {
 
@@ -145,7 +144,7 @@ export default function connectorPrototype(obj) {
             this.state.message = `Found ${length} transactions. Starting download...`;
 
             // Trigger stream initiator
-            const streamStartData = { expected_chunks: length, transactions_index: transactions };
+            const streamStartData = { expected_chunks: length+1, transactions_index: [...transactions, {id: "metadata", type: "metadata"}] };
             if (typeof this.onStreamStart === 'function') {
                 try {
                     await this.onStreamStart(streamStartData);
@@ -173,7 +172,7 @@ export default function connectorPrototype(obj) {
                     transactions[i].ereceipt = ereceipt
                     
                     // Trigger stream chunk
-                    const streamChunkData = { index: i, expected_chunks: length, chunk: transactions[i] };
+                    const streamChunkData = { index: i, expected_chunks: length+1, chunk: { download: [transactions[i]] } };
                     if (typeof this.onStreamChunk === 'function') {
                         try {
                             await this.onStreamChunk(streamChunkData);
@@ -238,18 +237,32 @@ export default function connectorPrototype(obj) {
             const length_success = transactions.filter(el=>el.ereceipt)?.length || 0
 
             const customer_id = await this.get_customer_id()
-            if (transactions.length > 0) {
-                transactions[0].scraper = { clientId: customer_id, ver: (this.config).ver, captureTime:(new Date()).toISOString() }
-            }
+            // if (transactions.length > 0) {
+            //     transactions[0].scraper = { clientId: customer_id, ver: (this.config).ver, captureTime:(new Date()).toISOString() }
+            // }
 
             const processed_data = this.download_postprocessor(transactions);
 
             this.state.download_status = "completed";
             this.state.message = "Download completed successfully";
             this.state.metadata = { ...this.state.metadata, ereceipts_count: length_success };
-        
+            this.state.downloaded_data = processed_data;
+
+            // Extract 'download' out, and collect everything else into 'newUser'
+            const { download, ...metadata } = processed_data;
+            
+            const streamChunkData_fin = { index: 0, expected_chunks: length+1, chunk: metadata };
+            if (typeof this.onStreamChunk === 'function') {
+                try {
+                    await this.onStreamChunk(streamChunkData_fin);
+                } catch (e) {
+                    this.console.error("Error in onStreamChunk callback: ", e);
+                }
+            }
+            window.dispatchEvent(new CustomEvent('msd-stream-chunk', { detail: streamChunkData_fin }));
+
             // Trigger stream end
-            const streamEndData = { expected_chunks: length, total_success: length_success };
+            const streamEndData = { expected_chunks: length+1, total_success: length_success+1 };
             if (typeof this.onStreamEnd === 'function') {
                 try {
                     await this.onStreamEnd(streamEndData);
