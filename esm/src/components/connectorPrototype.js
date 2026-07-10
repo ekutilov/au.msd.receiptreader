@@ -131,7 +131,7 @@ export default function connectorPrototype(obj) {
             let length = transactions?.length || 0
             
             if (length===0) {
-                this.console.error(`No transactions found or download error: connector: ${this.name}, id: ${this.id}, ver: ${ this.app.ver}`)
+                this.console.error(`No transactions found or download error: connector: ${this.name}, id: ${this.id}, ver: ${ this.ver}`)
                 this.state.download_status = "download_failed";
                 this.state.error = "No transactions found or download error: try to refresh the page";
                 this.state.message = "No transactions found";

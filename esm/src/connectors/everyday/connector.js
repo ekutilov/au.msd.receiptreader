@@ -110,7 +110,7 @@ export default function(obj) {
 
             // "8h41mMOiDULmlLT28xKSv5ITpp3XBRvH" // TODO: get it from config
 
-            return { client_id: c.defaultClientId, access_token: cookie.value } // result[0].result
+            return { client_id: c.defaultClientId, access_token: cookie.access_token } // result[0].result
         }
         ,
         download_postprocessor(download_data) {
