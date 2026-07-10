@@ -214,7 +214,7 @@ export default function(obj) {
 
             const cookie = await this._getCookie({url: c.auth_cookie_url, name: c.auth_cookie_name})
 
-            if (cookie && cookie.expires > Date.now()/1000) {
+            if (cookie && cookie.accessTokenExpired==='N') {
                 // await this.state.set({auth_state: "authenticated" })
                 return true 
             }
@@ -225,9 +225,20 @@ export default function(obj) {
         ,
         async _getCookie(a) {
 
-            const cookie = await cookieStore.get(a.name) // TODO: handle multiple cookies with the same name
+            // const cookie = await cookieStore.get(a.name) // TODO: handle multiple cookies with the same name
 
-            return cookie
+            let cookie;
+
+            try {
+                cookie = JSON.parse(localStorage[a.name])
+            } catch (e) {
+                this.console.error("Error in _getCookie: ", e)
+                return undefined
+            }
+
+            if (!cookie) { return undefined }
+
+            return cookie 
         }
 
     }
