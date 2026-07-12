@@ -81,6 +81,20 @@ export default function connectorPrototype(obj) {
                 this.config = {...this.config, ...options.config, ...options.config.connectors[this.id]?.config||{}}
             }
 
+            if (this._syncStateListener) {
+                window.removeEventListener('msd-state-sync', this._syncStateListener);
+            }
+            this._syncStateListener = () => {
+                this.syncState();
+            };
+            window.addEventListener('msd-state-sync', this._syncStateListener);
+
+        },
+        syncState() {
+            if (this.state) {
+                const event = new CustomEvent('msd-state-update', { detail: { ...this.state } });
+                window.dispatchEvent(event);
+            }
         },
         getState() {
 
