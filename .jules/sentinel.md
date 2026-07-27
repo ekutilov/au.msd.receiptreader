@@ -1,0 +1,6 @@
+## 2026-07-27 - [SSRF and Path Traversal in proxied_fetch and Kmart get_ereceipt]
+**Vulnerability:** Found that `proxied_fetch` in `connectorPrototype.js` forwarded arbitrary URLs directly to the proxy, including a secret header, without any protocol or IP-range (SSRF) checks. Additionally, Kmart's `get_ereceipt` used regex matching to extract `era_hash` from `receipt.webUrl`, but defaulted to using the raw `webUrl` if matching failed, and did not sanitize it against path traversal characters like `..`.
+**Learning:** Why it existed: The receipt scraper extracts data from different domains but sometimes relies on a backend proxy for CORS/CRAWL bypassing. However, because target URLs could originate from parsed HTML or API responses from retailers, they can be manipulated to point to localhost or private subnets, potentially leaking proxy credentials or internal service data.
+**Prevention:**
+1. Always validate and sanitize all variables extracted from external fields (e.g. `receipt.webUrl`) and restrict them to safe formats (e.g., `^[a-zA-Z0-9\-_]+$`) before interpolation in URL paths.
+2. In all proxy functions (like `proxied_fetch`), enforce HTTPS-only and explicitly filter out loopback/private IP ranges and local DNS addresses to prevent Server-Side Request Forgery (SSRF).

@@ -133,7 +133,16 @@ export default function() {
 
                 const regex = new RegExp(c.weburl_transformer_regex)
                 const match = transaction_obj.receipt.webUrl.match(regex)
-                const era_hash = match ? match[1] : transaction_obj.receipt.webUrl
+                if (!match) {
+                    this.console.error("get_ereceipt: receipt.webUrl does not match the expected weburl_transformer_regex")
+                    return {}
+                }
+                const era_hash = match[1]
+                // Strict validation to prevent directory traversal and SSRF: only alphanumeric and dashes/underscores
+                if (!/^[a-zA-Z0-9\-_]+$/.test(era_hash)) {
+                    this.console.error("get_ereceipt: Invalid characters in era_hash")
+                    return {}
+                }
 
                 const request_url = instore_receipt_request_url.replace(/___ERA_HASH___/g, era_hash)
 

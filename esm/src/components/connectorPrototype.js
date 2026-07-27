@@ -388,6 +388,37 @@ export default function connectorPrototype(obj) {
 
             if (!c.proxy) { return false }
 
+            if (typeof url !== 'string') {
+                this.console.error("proxied_fetch rejected: target URL must be a string")
+                return false
+            }
+
+            // Secure target URL validation to prevent SSRF and internal network scanning
+            try {
+                const parsedUrl = new URL(url)
+                if (parsedUrl.protocol !== 'https:') {
+                    this.console.error("proxied_fetch rejected: Only HTTPS target URLs are allowed.")
+                    return false
+                }
+                const hostname = parsedUrl.hostname.toLowerCase()
+                if (
+                    hostname === 'localhost' ||
+                    hostname === '127.0.0.1' ||
+                    hostname === '0.0.0.0' ||
+                    hostname === '[::1]' ||
+                    hostname.startsWith('10.') ||
+                    hostname.startsWith('192.168.') ||
+                    hostname.endsWith('.local') ||
+                    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+                ) {
+                    this.console.error("proxied_fetch rejected: Target URL resolves to a local/private address.")
+                    return false
+                }
+            } catch (e) {
+                this.console.error("proxied_fetch rejected: Invalid target URL.", e)
+                return false
+            }
+
             const proxy_url = c.proxy + url
             const proxy_secret = c.proxy_secret
             if (!proxy_secret) { return false }
