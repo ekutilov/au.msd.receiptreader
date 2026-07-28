@@ -416,6 +416,11 @@ export default function(obj) {
 
 
 async function inject_iframe(url) {
+    // Security check: only allow HTTPS URLs to prevent DOM XSS and insecure framing
+    if (typeof url !== 'string' || !url.startsWith('https://')) {
+        console.error("Security block: Only HTTPS URLs are permitted for iframe injection.")
+        return null
+    }
 
     const existing_iframe = document.getElementById("coles_invoice_iframe")
 
