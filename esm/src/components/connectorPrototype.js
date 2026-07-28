@@ -70,6 +70,11 @@ export default function connectorPrototype(obj) {
 
             if (options.load_config) {
                 let config_url = options.load_config
+                // Security check: Only allow HTTPS config URLs to prevent MITM and insecure transport.
+                if (typeof config_url !== 'string' || !config_url.startsWith('https://')) {
+                    this.console.error("Security risk: Configuration URL must use HTTPS.")
+                    return
+                }
                 let config_online = await fetch(config_url)
                 if (config_online.ok) {
                     let config_content = await config_online.json()
@@ -387,6 +392,16 @@ export default function connectorPrototype(obj) {
             const c = this.config
 
             if (!c.proxy) { return false }
+
+            // Security check: Enforce HTTPS for both proxy and target URLs to prevent MITM and unencrypted transit.
+            if (typeof c.proxy !== 'string' || !c.proxy.startsWith('https://')) {
+                this.console.error("Security risk: Proxy URL must use HTTPS.")
+                return false
+            }
+            if (typeof url !== 'string' || !url.startsWith('https://')) {
+                this.console.error("Security risk: Target URL for proxied fetch must use HTTPS.")
+                return false
+            }
 
             const proxy_url = c.proxy + url
             const proxy_secret = c.proxy_secret
