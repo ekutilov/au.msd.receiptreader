@@ -15,9 +15,13 @@ function return_connector(url) { // what handler/connector to be used for the gi
             return el().url_match_pattern?.filter(
 
                 (val)=>{
-                    const url_parser = /(.*)\:\/\/(.*)\/(.*)/g
+                    const url_parser = /(.*)\:\/\/(.*)\/(.*)/
 
                     const elements = url_parser.exec(val)
+
+                    if (!elements) {
+                        return false
+                    }
 
                     const protocol = elements[1], hostname = elements[2], pathname = elements[3]
 
