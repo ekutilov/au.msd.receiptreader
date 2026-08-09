@@ -10,11 +10,36 @@ import connectors from "./connectors/connectors.js"
 const precompiledConnectors = connectors.map(el => {
     const config = el();
     const matchers = (config.url_match_pattern || []).map(pattern => {
-        // Translate glob-style pattern (e.g., "*://*.coles.com.au/*") to standard RegExp.
-        // Escape special RegExp characters except '*', and replace '*' with '.*'.
-        const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
-        const regexStr = '^' + escaped.replace(/\*/g, '.*') + '$';
-        return new RegExp(regexStr);
+        if (pattern === '<all_urls>') {
+            return /^(?:https?|file|ftp):\/\/[^\s]+$/;
+        }
+        const match = pattern.match(/^(\*|https?|file|ftp):\/\/([^\/]+)(\/.*)$/);
+        if (!match) {
+            // Fallback to a safer regex translation if pattern is not standard
+            const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+            const regexStr = '^' + escaped.replace(/\*/g, '.*') + '$';
+            return new RegExp(regexStr);
+        }
+        const [, scheme, host, path] = match;
+
+        let schemeRegex = scheme;
+        if (scheme === '*') {
+            schemeRegex = 'https?';
+        }
+
+        let hostRegex = '';
+        if (host === '*') {
+            hostRegex = '[^/]+';
+        } else if (host.startsWith('*.')) {
+            const baseHost = host.slice(2).replace(/[.+^${}()|[\]\\]/g, '\\$&');
+            hostRegex = '(?:[^/.]+\\.)*' + baseHost;
+        } else {
+            hostRegex = host.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+        }
+
+        const pathRegex = path.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+
+        return new RegExp('^' + schemeRegex + ':\\/\\/' + hostRegex + pathRegex + '$');
     });
     return {
         factory: el,
