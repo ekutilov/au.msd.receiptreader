@@ -2,38 +2,38 @@ import connectorPrototype from "./components/connectorPrototype.js"
 
 import connectors from "./connectors/connectors.js"
 
-import { URLPattern } from "./components/urlpattern.js"
-
-if (!globalThis.URLPattern) globalThis.URLPattern = URLPattern; // polyfill for URLPattern unsupported API
-
+// Precompile connector URL match patterns to optimize return_connector matching.
+// This avoids:
+// 1. Invoking each connector's factory function multiple times.
+// 2. Heavy URLPattern polyfill parsing and compilation overhead.
+// 3. Regular expression compilation on every check.
+const precompiledConnectors = connectors.map(el => {
+    const config = el();
+    const matchers = (config.url_match_pattern || []).map(pattern => {
+        // Translate glob-style pattern (e.g., "*://*.coles.com.au/*") to standard RegExp.
+        // Escape special RegExp characters except '*', and replace '*' with '.*'.
+        const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+        const regexStr = '^' + escaped.replace(/\*/g, '.*') + '$';
+        return new RegExp(regexStr);
+    });
+    return {
+        factory: el,
+        matchers
+    };
+});
 
 function return_connector(url) { // what handler/connector to be used for the given url
 
-    let connector = (connectors.filter(
-
-        (el)=>{ 
-            return el().url_match_pattern?.filter(
-
-                (val)=>{
-                    const url_parser = /(.*)\:\/\/(.*)\/(.*)/g
-
-                    const elements = url_parser.exec(val)
-
-                    const protocol = elements[1], hostname = elements[2], pathname = elements[3]
-
-                    const pattern = new URLPattern({ hostname, protocol, pathname }) // this API is not supported in Firefox or Safari - replace with vanilla JS
-
-                    return pattern.test(url)
-                }
-            
-            ).length>0
-    }))[0]
+    const matched = precompiledConnectors.find(item =>
+        item.matchers.some(regex => regex.test(url))
+    );
     
-    if (!connector) { 
+    if (!matched) {
         console.log("No connector for the page is found. Url: ", JSON.stringify(url)) 
+        return null;
     } 
 
-    return connector
+    return matched.factory;
 }
 
 
