@@ -388,15 +388,55 @@ export default function connectorPrototype(obj) {
 
             if (!c.proxy) { return false }
 
-            const proxy_url = c.proxy + url
             const proxy_secret = c.proxy_secret
             if (!proxy_secret) { return false }
+
+            // Security: Parse and validate URLs to prevent SSRF and leakage of proxy_secret to untrusted hosts
+            let proxyUrlObj, targetUrlObj;
+            try {
+                proxyUrlObj = new URL(c.proxy);
+                targetUrlObj = new URL(url);
+            } catch (e) {
+                this.console.error("Security risk: Invalid proxy or target URL in proxied_fetch", e);
+                return false;
+            }
+
+            // Only allow http/https protocols
+            if (proxyUrlObj.protocol !== 'http:' && proxyUrlObj.protocol !== 'https:') {
+                this.console.error("Security risk: Insecure or invalid proxy protocol");
+                return false;
+            }
+            if (targetUrlObj.protocol !== 'http:' && targetUrlObj.protocol !== 'https:') {
+                this.console.error("Security risk: Insecure or invalid target protocol");
+                return false;
+            }
+
+            // Restrict target URL to trusted retailer and receipt service domains to prevent arbitrary SSRF
+            const trusted_domains = [
+                'coles.com.au',
+                'everyday.com.au',
+                'api-wr.com',
+                'kmart.com.au',
+                'slyp.com.au'
+            ];
+            const is_trusted = trusted_domains.some(domain =>
+                targetUrlObj.hostname === domain || targetUrlObj.hostname.endsWith('.' + domain)
+            );
+
+            if (!is_trusted) {
+                this.console.error("Security risk: Blocked untrusted target URL in proxied_fetch:", targetUrlObj.hostname);
+                return false;
+            }
+
+            // Safely construct proxy URL preventing any authority bypass / open redirect vulnerabilities
+            const cleanProxy = c.proxy.endsWith('/') ? c.proxy : c.proxy + '/';
+            const proxy_url = cleanProxy + targetUrlObj.href;
 
             const response = await fetch(proxy_url, {
                 ...options,
                 headers: {
                     ...options.headers,
-                    "x-target-url": url,
+                    "x-target-url": targetUrlObj.href,
                     "x-proxy-secret": proxy_secret,
                 },
             })
